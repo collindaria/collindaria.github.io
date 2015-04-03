@@ -115,10 +115,10 @@ function ssc_wheel(e) {
         i = e.wheelDelta || 0
     }
     if (Math.abs(r) > 1.2) {
-        r *= ssc_stepsize * 120
+        r *= ssc_stepsize / 120
     }
     if (Math.abs(i) > 1.2) {
-        i *= ssc_stepsize * 120
+        i *= ssc_stepsize / 120
     }
     ssc_scrollArray(n, -r, -i);
     e.preventDefault()
@@ -253,7 +253,7 @@ function ssc_pulse(e) {
     return ssc_pulse_(e)
 }
 
-var ssc_framerate = 150;
+var ssc_framerate = 10;
 var ssc_animtime = 500;
 var ssc_stepsize = 150;
 var ssc_pulseAlgorithm = true;
