@@ -1,1 +1,1 @@
-Coming Soon Template
+# Fitness- One Page Responsive Template

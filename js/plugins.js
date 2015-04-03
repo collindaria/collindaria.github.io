@@ -1,564 +1,560 @@
-//============================================================
-//
-// The MIT License
-//
-// Copyright (C) 2014 Matthew Wagerfield - @wagerfield
-//
-// Permission is hereby granted, free of charge, to any
-// person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the
-// Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute,
-// sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do
-// so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice
-// shall be included in all copies or substantial portions
-// of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY
-// OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
-// EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
-// FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-// AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
-// OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//============================================================
 
-/**
- * jQuery || Zepto Parallax Plugin
- * @author Matthew Wagerfield - @wagerfield
- * @description Creates a parallax effect between an array of layers,
- *              driving the motion from the gyroscope output of a smartdevice.
- *              If no gyroscope is available, the cursor position is used.
- */
-;(function($, window, document, undefined) {
+ /* ==============================================
+Page Loader
+=============================================== */
 
-  // Strict Mode
-  'use strict';
+$(window).load(function() {
+	'use strict';
+	$(".loader-item").delay(700).fadeOut();
+	$("#pageloader").delay(1200).fadeOut("slow");
+});
 
-  // Constants
-  var NAME = 'parallax';
-  var MAGIC_NUMBER = 30;
-  var DEFAULTS = {
-    relativeInput: false,
-    clipRelativeInput: false,
-    calibrationThreshold: 100,
-    calibrationDelay: 500,
-    supportDelay: 500,
-    calibrateX: false,
-    calibrateY: true,
-    invertX: true,
-    invertY: true,
-    limitX: false,
-    limitY: false,
-    scalarX: 10.0,
-    scalarY: 10.0,
-    frictionX: 0.1,
-    frictionY: 0.1,
-    originX: 0.5,
-    originY: 0.5
-  };
+ /* ==============================================
+Fit Videos
+=============================================== */
+$(window).load(function(){
+	'use strict';
+     $(".fit-vids").fitVids();
+ });
 
-  function Plugin(element, options) {
+/* ==============================================
+Drop Down Menu Fade Effect
+=============================================== */	
 
-    // DOM Context
-    this.element = element;
+$('.nav-toggle').hover(function() {
+	'use strict';
+    $(this).find('.dropdown-menu').first().stop(true, true).slideDown(250);
+    }, function() {
+    $(this).find('.dropdown-menu').first().stop(true, true).slideUp(250)
+ });
 
-    // Selections
-    this.$context = $(element).data('api', this);
-    this.$layers = this.$context.find('.layer');
+/* ==============================================
+Mobile Menu Button
+=============================================== */	
 
-    // Data Extraction
-    var data = {
-      calibrateX: this.$context.data('calibrate-x') || null,
-      calibrateY: this.$context.data('calibrate-y') || null,
-      invertX: this.$context.data('invert-x') || null,
-      invertY: this.$context.data('invert-y') || null,
-      limitX: parseFloat(this.$context.data('limit-x')) || null,
-      limitY: parseFloat(this.$context.data('limit-y')) || null,
-      scalarX: parseFloat(this.$context.data('scalar-x')) || null,
-      scalarY: parseFloat(this.$context.data('scalar-y')) || null,
-      frictionX: parseFloat(this.$context.data('friction-x')) || null,
-      frictionY: parseFloat(this.$context.data('friction-y')) || null,
-      originX: parseFloat(this.$context.data('origin-x')) || null,
-      originY: parseFloat(this.$context.data('origin-y')) || null
-    };
+$('.mini-nav-button').click(function() {
+    $(".nav-menu").slideToggle("9000");
+ });
 
-    // Delete Null Data Values
-    for (var key in data) {
-      if (data[key] === null) delete data[key];
-    }
+$('.nav a').click(function () {
+	if ($(window).width() < 970) {
+    	$(".nav-menu").slideToggle("2000")}
+	
+});
 
-    // Compose Settings Object
-    $.extend(this, DEFAULTS, options, data);
+/* ==============================================
+Flex Slider Home Page
+=============================================== */	
+	
+ $(window).load(function(){
+	  'use strict';
 
-    // States
-    this.calibrationTimer = null;
-    this.calibrationFlag = true;
-    this.enabled = false;
-    this.depths = [];
-    this.raf = null;
-
-    // Element Bounds
-    this.bounds = null;
-    this.ex = 0;
-    this.ey = 0;
-    this.ew = 0;
-    this.eh = 0;
-
-    // Element Center
-    this.ecx = 0;
-    this.ecy = 0;
-
-    // Element Range
-    this.erx = 0;
-    this.ery = 0;
-
-    // Calibration
-    this.cx = 0;
-    this.cy = 0;
-
-    // Input
-    this.ix = 0;
-    this.iy = 0;
-
-    // Motion
-    this.mx = 0;
-    this.my = 0;
-
-    // Velocity
-    this.vx = 0;
-    this.vy = 0;
-
-    // Callbacks
-    this.onMouseMove = this.onMouseMove.bind(this);
-    this.onDeviceOrientation = this.onDeviceOrientation.bind(this);
-    this.onOrientationTimer = this.onOrientationTimer.bind(this);
-    this.onCalibrationTimer = this.onCalibrationTimer.bind(this);
-    this.onAnimationFrame = this.onAnimationFrame.bind(this);
-    this.onWindowResize = this.onWindowResize.bind(this);
-
-    // Initialise
-    this.initialise();
-  }
-
-  Plugin.prototype.transformSupport = function(value) {
-    var element = document.createElement('div');
-    var propertySupport = false;
-    var propertyValue = null;
-    var featureSupport = false;
-    var cssProperty = null;
-    var jsProperty = null;
-    for (var i = 0, l = this.vendors.length; i < l; i++) {
-      if (this.vendors[i] !== null) {
-        cssProperty = this.vendors[i][0] + 'transform';
-        jsProperty = this.vendors[i][1] + 'Transform';
-      } else {
-        cssProperty = 'transform';
-        jsProperty = 'transform';
-      }
-      if (element.style[jsProperty] !== undefined) {
-        propertySupport = true;
-        break;
-      }
-    }
-    switch(value) {
-      case '2D':
-        featureSupport = propertySupport;
-        break;
-      case '3D':
-        if (propertySupport) {
-          var body = document.body || document.createElement('body');
-          var documentElement = document.documentElement;
-          var documentOverflow = documentElement.style.overflow;
-          if (!document.body) {
-            documentElement.style.overflow = 'hidden';
-            documentElement.appendChild(body);
-            body.style.overflow = 'hidden';
-            body.style.background = '';
-          }
-          body.appendChild(element);
-          element.style[jsProperty] = 'translate3d(1px,1px,1px)';
-          propertyValue = window.getComputedStyle(element).getPropertyValue(cssProperty);
-          featureSupport = propertyValue !== undefined && propertyValue.length > 0 && propertyValue !== "none";
-          documentElement.style.overflow = documentOverflow;
-          body.removeChild(element);
+      $('.hometexts').flexslider({
+        animation: "slide",
+		selector: ".slide-text .hometext",
+		controlNav: false,
+		directionNav: false ,
+		slideshowSpeed: 4000,  
+		direction: "vertical",
+        start: function(slider){
+         $('body').removeClass('loading'); 
         }
-        break;
-    }
-    return featureSupport;
-  };
-
-  Plugin.prototype.ww = null;
-  Plugin.prototype.wh = null;
-  Plugin.prototype.wcx = null;
-  Plugin.prototype.wcy = null;
-  Plugin.prototype.wrx = null;
-  Plugin.prototype.wry = null;
-  Plugin.prototype.portrait = null;
-  Plugin.prototype.desktop = !navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|BB10|mobi|tablet|opera mini|nexus 7)/i);
-  Plugin.prototype.vendors = [null,['-webkit-','webkit'],['-moz-','Moz'],['-o-','O'],['-ms-','ms']];
-  Plugin.prototype.motionSupport = !!window.DeviceMotionEvent;
-  Plugin.prototype.orientationSupport = !!window.DeviceOrientationEvent;
-  Plugin.prototype.orientationStatus = 0;
-  Plugin.prototype.transform2DSupport = Plugin.prototype.transformSupport('2D');
-  Plugin.prototype.transform3DSupport = Plugin.prototype.transformSupport('3D');
-  Plugin.prototype.propertyCache = {};
-
-  Plugin.prototype.initialise = function() {
-
-    // Configure Styles
-    if (this.$context.css('position') === 'static') {
-      this.$context.css({
-        position:'relative'
       });
-    }
+ });
 
-    // Hardware Accelerate Context
-    this.accelerate(this.$context);
 
-    // Setup
-    this.updateLayers();
-    this.updateDimensions();
-    this.enable();
-    this.queueCalibration(this.calibrationDelay);
-  };
-
-  Plugin.prototype.updateLayers = function() {
-
-    // Cache Layer Elements
-    this.$layers = this.$context.find('.layer');
-    this.depths = [];
-
-    // Configure Layer Styles
-    this.$layers.css({
-      position:'absolute',
-      display:'block',
-      left: 0,
-      top: 0
-    });
-    this.$layers.first().css({
-      position:'relative'
-    });
-
-    // Hardware Accelerate Layers
-    this.accelerate(this.$layers);
-
-    // Cache Depths
-    this.$layers.each($.proxy(function(index, element) {
-      this.depths.push($(element).data('depth') || 0);
-    }, this));
-  };
-
-  Plugin.prototype.updateDimensions = function() {
-    this.ww = window.innerWidth;
-    this.wh = window.innerHeight;
-    this.wcx = this.ww * this.originX;
-    this.wcy = this.wh * this.originY;
-    this.wrx = Math.max(this.wcx, this.ww - this.wcx);
-    this.wry = Math.max(this.wcy, this.wh - this.wcy);
-  };
-
-  Plugin.prototype.updateBounds = function() {
-    this.bounds = this.element.getBoundingClientRect();
-    this.ex = this.bounds.left;
-    this.ey = this.bounds.top;
-    this.ew = this.bounds.width;
-    this.eh = this.bounds.height;
-    this.ecx = this.ew * this.originX;
-    this.ecy = this.eh * this.originY;
-    this.erx = Math.max(this.ecx, this.ew - this.ecx);
-    this.ery = Math.max(this.ecy, this.eh - this.ecy);
-  };
-
-  Plugin.prototype.queueCalibration = function(delay) {
-    clearTimeout(this.calibrationTimer);
-    this.calibrationTimer = setTimeout(this.onCalibrationTimer, delay);
-  };
-
-  Plugin.prototype.enable = function() {
-    if (!this.enabled) {
-      this.enabled = true;
-      if (this.orientationSupport) {
-        this.portrait = null;
-        window.addEventListener('deviceorientation', this.onDeviceOrientation);
-        setTimeout(this.onOrientationTimer, this.supportDelay);
-      } else {
-        this.cx = 0;
-        this.cy = 0;
-        this.portrait = false;
-        window.addEventListener('mousemove', this.onMouseMove);
-      }
-      window.addEventListener('resize', this.onWindowResize);
-      this.raf = requestAnimationFrame(this.onAnimationFrame);
-    }
-  };
-
-  Plugin.prototype.disable = function() {
-    if (this.enabled) {
-      this.enabled = false;
-      if (this.orientationSupport) {
-        window.removeEventListener('deviceorientation', this.onDeviceOrientation);
-      } else {
-        window.removeEventListener('mousemove', this.onMouseMove);
-      }
-      window.removeEventListener('resize', this.onWindowResize);
-      cancelAnimationFrame(this.raf);
-    }
-  };
-
-  Plugin.prototype.calibrate = function(x, y) {
-    this.calibrateX = x === undefined ? this.calibrateX : x;
-    this.calibrateY = y === undefined ? this.calibrateY : y;
-  };
-
-  Plugin.prototype.invert = function(x, y) {
-    this.invertX = x === undefined ? this.invertX : x;
-    this.invertY = y === undefined ? this.invertY : y;
-  };
-
-  Plugin.prototype.friction = function(x, y) {
-    this.frictionX = x === undefined ? this.frictionX : x;
-    this.frictionY = y === undefined ? this.frictionY : y;
-  };
-
-  Plugin.prototype.scalar = function(x, y) {
-    this.scalarX = x === undefined ? this.scalarX : x;
-    this.scalarY = y === undefined ? this.scalarY : y;
-  };
-
-  Plugin.prototype.limit = function(x, y) {
-    this.limitX = x === undefined ? this.limitX : x;
-    this.limitY = y === undefined ? this.limitY : y;
-  };
-
-  Plugin.prototype.origin = function(x, y) {
-    this.originX = x === undefined ? this.originX : x;
-    this.originY = y === undefined ? this.originY : y;
-  };
-
-  Plugin.prototype.clamp = function(value, min, max) {
-    value = Math.max(value, min);
-    value = Math.min(value, max);
-    return value;
-  };
-
-  Plugin.prototype.css = function(element, property, value) {
-    var jsProperty = this.propertyCache[property];
-    if (!jsProperty) {
-      for (var i = 0, l = this.vendors.length; i < l; i++) {
-        if (this.vendors[i] !== null) {
-          jsProperty = $.camelCase(this.vendors[i][1] + '-' + property);
-        } else {
-          jsProperty = property;
+ /* ==============================================
+Flex Slider Home Page Animated Version
+=============================================== */	
+	
+ $(window).load(function(){
+	  'use strict';
+		
+      $('.hometexts-1').flexslider({
+        animation: "fade",
+		selector: ".slide-text-1 .hometext-1",
+		controlNav: false,
+		directionNav: false ,
+		slideshowSpeed: 5000,  
+		direction: "horizontal",
+        start: function(slider){
+         $('body').removeClass('loading'); 
         }
-        if (element.style[jsProperty] !== undefined) {
-          this.propertyCache[property] = jsProperty;
-          break;
+      });
+ });
+
+  /* ==============================================
+Flex Slider Home Page V5
+=============================================== */	
+	
+ $(window).load(function(){
+	  'use strict';
+		
+      $('.hometexts-5').flexslider({
+        animation: "fade",
+		selector: ".slide-text-5 .hometext-5",
+		controlNav: false,
+		directionNav: true ,
+		slideshowSpeed: 5000,  
+		direction: "horizontal",
+        start: function(slider){
+         $('body').removeClass('loading'); 
         }
-      }
-    }
-    element.style[jsProperty] = value;
-  };
+      });
+ });
 
-  Plugin.prototype.accelerate = function($element) {
-    for (var i = 0, l = $element.length; i < l; i++) {
-      var element = $element[i];
-      this.css(element, 'transform', 'translate3d(0,0,0)');
-      this.css(element, 'transform-style', 'preserve-3d');
-      this.css(element, 'backface-visibility', 'hidden');
-    }
-  };
+  /* ==============================================
+Flex Slider Blog
+=============================================== */	
+	
+ $(window).load(function(){
+	  'use strict';
+		
+      $('.post .flex').flexslider({
+        animation: "fade",
+		selector: ".post-slides .post-slide",
+		controlNav: false,
+		directionNav: true ,
+		slideshowSpeed: 5000,  
+		direction: "horizontal",
+        start: function(slider){
+         $('body').removeClass('loading'); 
+        }
+      });
+ });
 
-  Plugin.prototype.setPosition = function(element, x, y) {
-    x += 'px';
-    y += 'px';
-    if (this.transform3DSupport) {
-      this.css(element, 'transform', 'translate3d('+x+','+y+',0)');
-    } else if (this.transform2DSupport) {
-      this.css(element, 'transform', 'translate('+x+','+y+')');
-    } else {
-      element.style.left = x;
-      element.style.top = y;
-    }
-  };
 
-  Plugin.prototype.onOrientationTimer = function(event) {
-    if (this.orientationSupport && this.orientationStatus === 0) {
-      this.disable();
-      this.orientationSupport = false;
-      this.enable();
-    }
-  };
+/* ==============================================
+Home Super Slider (images)
+=============================================== */
 
-  Plugin.prototype.onCalibrationTimer = function(event) {
-    this.calibrationFlag = true;
-  };
-
-  Plugin.prototype.onWindowResize = function(event) {
-    this.updateDimensions();
-  };
-
-  Plugin.prototype.onAnimationFrame = function() {
-    this.updateBounds();
-    var dx = this.ix - this.cx;
-    var dy = this.iy - this.cy;
-    if ((Math.abs(dx) > this.calibrationThreshold) || (Math.abs(dy) > this.calibrationThreshold)) {
-      this.queueCalibration(0);
-    }
-    if (this.portrait) {
-      this.mx = this.calibrateX ? dy : this.iy;
-      this.my = this.calibrateY ? dx : this.ix;
-    } else {
-      this.mx = this.calibrateX ? dx : this.ix;
-      this.my = this.calibrateY ? dy : this.iy;
-    }
-    this.mx *= this.ew * (this.scalarX / 100);
-    this.my *= this.eh * (this.scalarY / 100);
-    if (!isNaN(parseFloat(this.limitX))) {
-      this.mx = this.clamp(this.mx, -this.limitX, this.limitX);
-    }
-    if (!isNaN(parseFloat(this.limitY))) {
-      this.my = this.clamp(this.my, -this.limitY, this.limitY);
-    }
-    this.vx += (this.mx - this.vx) * this.frictionX;
-    this.vy += (this.my - this.vy) * this.frictionY;
-    for (var i = 0, l = this.$layers.length; i < l; i++) {
-      var depth = this.depths[i];
-      var layer = this.$layers[i];
-      var xOffset = this.vx * depth * (this.invertX ? -1 : 1);
-      var yOffset = this.vy * depth * (this.invertY ? -1 : 1);
-      this.setPosition(layer, xOffset, yOffset);
-    }
-    this.raf = requestAnimationFrame(this.onAnimationFrame);
-  };
-
-  Plugin.prototype.onDeviceOrientation = function(event) {
-
-    // Validate environment and event properties.
-    if (!this.desktop && event.beta !== null && event.gamma !== null) {
-
-      // Set orientation status.
-      this.orientationStatus = 1;
-
-      // Extract Rotation
-      var x = (event.beta  || 0) / MAGIC_NUMBER; //  -90 :: 90
-      var y = (event.gamma || 0) / MAGIC_NUMBER; // -180 :: 180
-
-      // Detect Orientation Change
-      var portrait = window.innerHeight > window.innerWidth;
-      if (this.portrait !== portrait) {
-        this.portrait = portrait;
-        this.calibrationFlag = true;
-      }
-
-      // Set Calibration
-      if (this.calibrationFlag) {
-        this.calibrationFlag = false;
-        this.cx = x;
-        this.cy = y;
-      }
-
-      // Set Input
-      this.ix = x;
-      this.iy = y;
-    }
-  };
-
-  Plugin.prototype.onMouseMove = function(event) {
-
-    // Cache mouse coordinates.
-    var clientX = event.clientX;
-    var clientY = event.clientY;
-
-    // Calculate Mouse Input
-    if (!this.orientationSupport && this.relativeInput) {
-
-      // Clip mouse coordinates inside element bounds.
-      if (this.clipRelativeInput) {
-        clientX = Math.max(clientX, this.ex);
-        clientX = Math.min(clientX, this.ex + this.ew);
-        clientY = Math.max(clientY, this.ey);
-        clientY = Math.min(clientY, this.ey + this.eh);
-      }
-
-      // Calculate input relative to the element.
-      this.ix = (clientX - this.ex - this.ecx) / this.erx;
-      this.iy = (clientY - this.ey - this.ecy) / this.ery;
-
-    } else {
-
-      // Calculate input relative to the window.
-      this.ix = (clientX - this.wcx) / this.wrx;
-      this.iy = (clientY - this.wcy) / this.wry;
-    }
-  };
-
-  var API = {
-    enable: Plugin.prototype.enable,
-    disable: Plugin.prototype.disable,
-    updateLayers: Plugin.prototype.updateLayers,
-    calibrate: Plugin.prototype.calibrate,
-    friction: Plugin.prototype.friction,
-    invert: Plugin.prototype.invert,
-    scalar: Plugin.prototype.scalar,
-    limit: Plugin.prototype.limit,
-    origin: Plugin.prototype.origin
-  };
-
-  $.fn[NAME] = function (value) {
-    var args = arguments;
-    return this.each(function () {
-      var $this = $(this);
-      var plugin = $this.data(NAME);
-      if (!plugin) {
-        plugin = new Plugin(this, value);
-        $this.data(NAME, plugin);
-      }
-      if (API[value]) {
-        plugin[value].apply(plugin, Array.prototype.slice.call(args, 1));
-      }
+ $('#slides').superslides({
+      animation: 'fade',
     });
-  };
 
-})(window.jQuery || window.Zepto, window, document);
+ /* ==============================================
+Scroll Navigation
+=============================================== */	
 
-/**
- * Request Animation Frame Polyfill.
- * @author Tino Zijdel
- * @author Paul Irish
- * @see https://gist.github.com/paulirish/1579671
- */
-;(function() {
+$(function() {
+		'use strict';
 
-  var lastTime = 0;
-  var vendors = ['ms', 'moz', 'webkit', 'o'];
+		$('.scroll').bind('click', function(event) {
+			var $anchor = $(this);
+			var headerH = $('#navigation').outerHeight();
+			$('html, body').stop().animate({
+				scrollTop : $($anchor.attr('href')).offset().top - headerH + "px"
+			}, 1200, 'easeInOutExpo');
 
-  for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-    window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-    window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
-  }
+			event.preventDefault();
+		});
+	});
 
-  if (!window.requestAnimationFrame) {
-    window.requestAnimationFrame = function(callback, element) {
-      var currTime = new Date().getTime();
-      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-      var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-        timeToCall);
-      lastTime = currTime + timeToCall;
-      return id;
+
+
+ /* ==============================================
+Active Navigation Calling
+=============================================== */
+
+$('body').scrollspy({ 
+	target: '.nav-menu',
+	offset: 95
+})
+
+ /* ==============================================
+Tooltips Calling
+=============================================== */	
+
+$('[data-toggle="tooltip"]').tooltip();
+
+/* ==============================================
+Navigation Scroll Effect
+=============================================== */
+
+
+$(document).ready(function () {
+	'use strict';
+
+    var menu = $('#navigation');
+
+    $(window).scroll(function () {
+        var y = $(this).scrollTop();
+        var z = $('.waypoint').offset().top - 200;
+
+        if (y >= z) {
+            menu.removeClass('not-visible-nav').addClass('visible-nav');
+        }
+        else{
+            menu.removeClass('visible-nav').addClass('not-visible-nav');
+        }
+    });
+
+});
+
+
+ /* ==============================================
+Flex Slider Testimonials
+=============================================== */	
+	
+ $(window).load(function(){
+	  'use strict';
+		
+      $('.inner').flexslider({
+        animation: "fade",
+		selector: ".t-slides .monial",
+		controlNav: false,
+		directionNav: true ,
+		slideshowSpeed: 7000,  
+		direction: "horizontal",
+        start: function(slider){
+          $('body').removeClass('loading'); 
+        }
+      });
+ });
+
+
+ /* ==============================================
+Pretty Photo
+=============================================== */	
+	
+	jQuery(document).ready(function(){
+    jQuery("a[data-rel^='prettyPhoto']").prettyPhoto({
+        theme: "pp_default",
+    });
+  });
+
+
+
+/* ==============================================
+Parallax Calling
+=============================================== */
+
+
+( function ( $ ) {
+'use strict';
+$(document).ready(function(){
+$(window).bind('load', function () {
+		parallaxInit();						  
+	});
+	function parallaxInit() {
+		testMobile = isMobile.any();
+		if (testMobile == null)
+		{
+			$('.image1').parallax("50%", 0.5);
+			$('.image2').parallax("50%", 0.5);
+			$('.image3').parallax("50%", 0.5);
+			$('.image4').parallax("50%", 0.5);
+			$('.parallax').parallax("-50%", 0.3);
+			$('.parallax1').parallax("50%", 0.5);
+			$('.parallax2').parallax("50%", 0.5);
+			$('.parallax3').parallax("50%", 0.5);
+			$('.parallax4').parallax("50%", 0.5);
+			$('.parallax5').parallax("50%", 0.5);
+			$('.parallax6').parallax("50%", 0.5);
+		}
+	}	
+	parallaxInit();	 
+});	
+//Mobile Detect
+var testMobile;
+var isMobile = {
+    Android: function() {
+        return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function() {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function() {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Opera: function() {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function() {
+        return navigator.userAgent.match(/IEMobile/i);
+    },
+    any: function() {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+    }
+};
+}( jQuery ));
+
+
+/* ==============================================
+Slap Text for Typography
+=============================================== */	
+
+  // Function to slabtext the H1 headings
+    function slabTextHeadlines() {
+        $(".typographic h1, .typographic h2").slabText({
+            // Don't slabtext the headers if the viewport is under 380px
+            "viewportBreakpoint":300
+        });
     };
-  }
+    
+    // Called one second after the onload event for the demo (as I'm hacking the
+    // fontface load event a bit here)
 
-  if (!window.cancelAnimationFrame) {
-    window.cancelAnimationFrame = function(id) {
-      clearTimeout(id);
+    // Please do not do this in a production environment - you should really use
+    // google WebFont loader events (or something similar) for better control
+    $(window).load(function() {
+        // So, to recap... don't actually do this, it's nasty!
+        setTimeout(slabTextHeadlines, 1000);
+    });
+
+ /* ==============================================
+Our Works / isotope Scripts
+===============================================	*/
+
+       $(window).load(function() {
+       	'use strict';
+	      
+	      var $container = $('.portfolio-items');
+
+			// $container.isotope({
+			// 	resizable: false, 
+			// 	//masonry: { columnWidth: $container.width() / 5 },
+			// 	itemSelector : '.work'
+			// });
+
+
+	      
+	      var $optionSets = $('#options .option-set'),
+	          $optionLinks = $optionSets.find('a');
+
+	      $optionLinks.click(function(){
+	        var $this = $(this);
+	        // don't proceed if already selected
+	        if ( $this.hasClass('selected') ) {
+	          return false;
+	        }
+	        var $optionSet = $this.parents('.option-set');
+	        $optionSet.find('.selected').removeClass('selected');
+	        $this.addClass('selected');
+	  
+	        // make option object dynamically, i.e. { filter: '.my-filter-class' }
+	        var options = {},
+	            key = $optionSet.attr('data-option-key'),
+	            value = $this.attr('data-option-value');
+	        // parse 'false' as false boolean
+	        value = value === 'false' ? false : value;
+	        options[ key ] = value;
+	        if ( key === 'layoutMode' && typeof changeLayoutMode === 'function' ) {
+	          // changes in layout modes need extra logic
+	          changeLayoutMode( $this, options )
+	        } else {
+	          // otherwise, apply new options
+	          $container.isotope( options );
+	        }
+	        
+	        return false;
+	      });
+
+		  
+	      //expander
+		  var loader = $('.item-expander');
+		if(typeof loader.html() == 'undefined'){
+			$('<div class="item-expander"><div id="item-expander" class="container clearfix relative"><p class="cls-btn"><a class="close">X</a></p><div/></div></div>').css({opacity:0}).hide().insertAfter('.portfolio');
+			loader = $('.item-expander');
+		}
+		$('.expander').on('click', function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			var url = $(this).attr('href');
+
+
+
+			loader.slideUp(function(){
+				$.get(url, function(data){
+					var portfolioContainer = $('.portfolio');
+					var topPosition = portfolioContainer.offset().top;
+					var bottomPosition = topPosition + portfolioContainer.height();
+					$('html,body').delay(600).animate({ scrollTop: bottomPosition - -10}, 800);
+					var container = $('#item-expander>div', loader);
+					
+					container.html(data);
+					 $(".fit-vids").fitVids();
+					$('.project').flexslider({
+				        animation: "fade",
+						selector: ".project-slides .slide",
+						controlNav: true,
+						directionNav: true ,
+						slideshowSpeed: 5000,  
+				      });
+					
+				//	 container.fitVids();
+					loader.slideDown(function(){
+						if(typeof keepVideoRatio == 'function'){
+							keepVideoRatio('.project-video > iframe');
+						}
+					}).delay(1000).animate({opacity:1}, 200);
+				});
+			});
+		});
+		
+		$('.close', loader).on('click', function(){
+			loader.delay(300).slideUp(function(){
+				var container = $('#item-expander>div', loader);
+				container.html('');
+				$(this).css({opacity:0});
+				
+			});
+			var portfolioContainer = $('.portfolio');
+				var topPosition = portfolioContainer.offset().top;
+				$('html,body').delay(0).animate({ scrollTop: topPosition - 70}, 500);
+		});
+
+});
+
+
+/* ==============================================
+Animated Items
+=============================================== */	
+	jQuery(document).ready(function($) {
+	
+	'use strict';
+
+    	$('.animated').appear(function() {
+	        var elem = $(this);
+	        var animation = elem.data('animation');
+	        if ( !elem.hasClass('visible') ) {
+	        	var animationDelay = elem.data('animation-delay');
+	            if ( animationDelay ) {
+
+	                setTimeout(function(){
+	                    elem.addClass( animation + " visible" );
+	                }, animationDelay);
+
+	            } else {
+	                elem.addClass( animation + " visible" );
+	            }
+	        }
+	    });
+});
+
+
+
+ /* ==============================================
+Count Factors
+ =============================================== */	
+  
+
+		jQuery(function() {
+
+				$(".fact-number").appear(function(){
+				$('.fact-number').each(function(){
+	        	dataperc = $(this).attr('data-perc'),
+				$(this).find('.factor').delay(6000).countTo({
+	            from: 50,
+	            to: dataperc,
+	            speed: 3000,
+	            refreshInterval: 50,
+	            
+        	});  
+		});
+					});
+});
+ 
+(function($) {
+    $.fn.countTo = function(options) {
+        // merge the default plugin settings with the custom options
+        options = $.extend({}, $.fn.countTo.defaults, options || {});
+
+        // how many times to update the value, and how much to increment the value on each update
+        var loops = Math.ceil(options.speed / options.refreshInterval),
+            increment = (options.to - options.from) / loops;
+
+        return $(this).each(function() {
+            var _this = this,
+                loopCount = 0,
+                value = options.from,
+                interval = setInterval(updateTimer, options.refreshInterval);
+
+            function updateTimer() {
+                value += increment;
+                loopCount++;
+                $(_this).html(value.toFixed(options.decimals));
+
+                if (typeof(options.onUpdate) == 'function') {
+                    options.onUpdate.call(_this, value);
+                }
+
+                if (loopCount >= loops) {
+                    clearInterval(interval);
+                    value = options.to;
+
+                    if (typeof(options.onComplete) == 'function') {
+                        options.onComplete.call(_this, value);
+                    }
+                }
+            }
+        });
     };
-  }
 
-}());
+    $.fn.countTo.defaults = {
+        from: 0,  // the number the element should start at
+        to: 100,  // the number the element should end at
+        speed: 1000,  // how long it should take to count between the target numbers
+        refreshInterval: 100,  // how often the element should be updated
+        decimals: 0,  // the number of decimal places to show
+        onUpdate: null,  // callback method for every time the element is updated,
+        onComplete: null,  // callback method for when the element finishes updating
+    };
+})(jQuery);
+
+
+
+
+
+/* ==============================================
+Video Script
+=============================================== */
+
+jQuery(function(){
+			'use strict';
+
+            jQuery(".player").mb_YTPlayer();
+		});	
+	
+
+
+
+ /* ==============================================
+Contact Form
+=============================================== */	
+
+$(document).ready(function() {
+		'use strict';
+		
+		$('form#contact-us').submit(function() {
+			$('form#contact-us .error').remove();
+			var hasError = false;
+			$('.requiredField').each(function() {
+				if($.trim($(this).val()) == '') {
+					var labelText = $(this).prev('label').text();
+					$(this).parent().append('<span class="error">Your forgot to enter your '+labelText+'.</span>');
+					$(this).addClass('inputError');
+					hasError = true;
+				} else if($(this).hasClass('email')) {
+					var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+					if(!emailReg.test($.trim($(this).val()))) {
+						var labelText = $(this).prev('label').text();
+						$(this).parent().append('<span class="error">Sorry! You\'ve entered an invalid '+labelText+'.</span>');
+						$(this).addClass('inputError');
+						hasError = true;
+					}
+				}
+			});
+			if(!hasError) {
+				var formInput = $(this).serialize();
+				$.post($(this).attr('action'),formInput, function(data){
+					$('.mail-message').removeClass('not-visible-message').addClass('visible-message');
+					return false;
+				});
+			}
+			
+			return false;	
+		});
+	})
+
+
