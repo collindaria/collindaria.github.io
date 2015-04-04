@@ -407,7 +407,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	}
 
 	#slides .slides-container div{
-		background-position:bottom center;
+		background-position:center center;
 		background-attachment: fixed;
 	}
 
@@ -707,7 +707,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 /* Services */
 
 	#services{
-		background:url(../images/parallax/image1.jpg) top center fixed;
+		background:url(../images/parallax/image1.jpg) center center fixed;
 		padding:55px 0;
 		overflow: hidden;
 	}
