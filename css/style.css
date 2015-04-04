@@ -521,7 +521,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		float: left;
 		position: relative;
 		padding-top:8px;
-		top: 50%;
+		top: 25%;
 		-webkit-transform: translateY(-50%);
 		-moz-transform: translateY(-50%);
 		transform: translateY(-50%);
