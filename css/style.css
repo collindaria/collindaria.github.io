@@ -1078,7 +1078,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		min-height: 648px;
 		margin:70px auto;
 		background:url(../images/mac.png) center center no-repeat;
-		background-size:100%;
+		background-size:50%;
 	}
 
 	#fun-acts .fun-acts .facts .fact{
