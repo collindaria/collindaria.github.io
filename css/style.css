@@ -430,7 +430,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	.v2 .home-arrow{
 		margin:0 auto;
 		left:50%;
-		bottom:12%;
+		bottom:20%;
 		position: absolute;
 		-webkit-transform: translateX(-50%);
 		-moz-transform: translateX(-50%);
