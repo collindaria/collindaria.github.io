@@ -430,7 +430,6 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	.v2 .home-arrow{
 		margin:0 auto;
 		left:50%;
-		bottom:50%;
 		position: absolute;
 		-webkit-transform: translateX(-50%);
 		-moz-transform: translateX(-50%);
@@ -1087,7 +1086,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	}
 	
 	#fun-acts{
-		background:#333 url(../images/bgd/trees1.jpg) center center no-repeat;
+		background:#333 url(../images/bgd/Trees1.jpg) center center no-repeat;
         background-size:100%;
 	}
 
