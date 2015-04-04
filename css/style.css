@@ -1004,7 +1004,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		margin:0;
 		z-index: 3;
 		opacity:0.9;
-		background:#8BC3A3;
+		background:#0060C5;
 		-webkit-transition: all 0.4s;
 		-moz-transition: all 0.4s;
 		transition: all 0.4s;
@@ -1076,7 +1076,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		max-width:1164px;
 		height: auto;
 		min-height: 648px;
-		margin:70px auto;
+		margin:20px auto;
 		background:url(../images/mac.png) center center no-repeat;
 		background-size:50%;
 	}
@@ -1087,7 +1087,8 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	}
 	
 	#fun-acts{
-		background:#333 url(../images/bgd/image3.jpg) repeat;
+		background:#333 url(../images/bgd/image3.jpg) center center no-repeat;
+        background-size:50%;
 	}
 
 
