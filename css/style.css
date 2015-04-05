@@ -77,6 +77,20 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		font-weight:100;
 	}
 
+    #countdown div span {
+        display:block;
+        font-size: 50px;
+        line-height: 50px;
+        letter-spacing: initial;
+        font-weight: 100;
+        text-transform: uppercase;
+    }
+
+    #countdown div {
+        display:inline-block;
+        margin: 0 34px;
+    }
+
 	p{
 		margin:0 0 5px;
 	}
