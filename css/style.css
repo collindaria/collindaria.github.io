@@ -228,7 +228,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		font-size:18px;
 		color: white;
 		font-weight: 100;
-		text-align: left;
+		text-align: center;
 		margin:20px auto;
 		max-width: 900px;
 		line-height: 24px;
@@ -261,6 +261,10 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	.uppercase{
 		text-transform: uppercase;
 	}
+
+    .left{
+        text-align: left;
+    }
 
 /* Colors */
 
