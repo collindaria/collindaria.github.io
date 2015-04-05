@@ -381,6 +381,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	
 	#home .v2 .typographic .logo{
 		padding:25px 0;
+        left: 25%;
 	}
 
 /* Typographic Text Options  */
@@ -390,6 +391,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		line-height:0.8;
 		font-size:70%;
 		margin:10px 0;
+        left: 80%;
 	}
 
 	#home .v2 .typographic h2{
