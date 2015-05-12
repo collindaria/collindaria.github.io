@@ -857,6 +857,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	
 	#features{
 		background:#000 url(../images/parallax/Garden.jpg) center center fixed no-repeat;
+        background-size:100%;
 	}
 
 
