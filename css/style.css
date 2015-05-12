@@ -859,7 +859,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		}	
 
 	.testimonials{
-		background: url(../images/parallax/SLC.jpg) bottom center no-repeat;
+		background: url(../images/parallax/SLC.jpg) center center no-repeat;
         width:100%;
         height:auto;
 		padding: 70px 0 70px;
