@@ -442,7 +442,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	}
 
 /* Super Slides Navigation */
-
+/*
 	.slides-navigation {
 		margin: 0 auto;
 		position: absolute;
@@ -458,7 +458,9 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		height:81px;
 		background:url(../images/slider-arrows.png);
 		opacity:0;
-
+		-webkit-transition: all 0.5s;
+		-moz-transition: all 0.5s;
+		transition: all 0.5s;
 	}
 
 	.slides-navigation a.prev {
@@ -477,7 +479,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	.slides-navigation a:hover{
 		opacity:1 !important;
 	}
-
+*/
 /* Navigation */
 	
 	#navigation{
