@@ -411,13 +411,12 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 
 /* Background Slider Images  */
 
-	.slides-container div,
 	.home{
 		background-size:100%;
         background-image:url(../images/image1.jpg);
 	}
 
-	
+
 
 
 	.v2 .home-arrow{
