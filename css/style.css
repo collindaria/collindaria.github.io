@@ -354,7 +354,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	}
 
 	.home{
-		background:url(../images/image1.jpg) center center fixed;
+		background:#000 url(../images/image1.jpg) center center fixed no-repeat;
         background-size:100%;
 	}
 
@@ -1332,7 +1332,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		display: inline-block;
 		width:40px;
 		height: 40px;
-		background:blue;
+		background:white;
 		color:#0060C5 !important;
 		font-size: 20px;
 		line-height: 38px;
