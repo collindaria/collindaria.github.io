@@ -417,7 +417,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	}
 
 	#slides .slides-container div{
-		background-position:center center;
+		background-position:center center no-repeat;
 		background-attachment: fixed;
 	}
 
