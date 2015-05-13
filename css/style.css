@@ -217,7 +217,16 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		opacity:0.25;
 	}
 
-
+    #gift{
+    background: url(../images/pattern-fruit.jpg) repeat;
+    /*content:'';
+    width: 100%;
+    height: 100%;
+    top:0;
+    left:0;
+    position: absolute;
+    opacity:0.25;*/
+}
 
 /* Fonts */
 
@@ -708,7 +717,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 /* Services */
 
 	#services{
-		background: url(../images/pattern-fruit.jpg) repeat;
+		background:url(../images/parallax/image1.jpg) center center fixed;
 		padding:55px 0;
 		overflow: hidden;
 	}
