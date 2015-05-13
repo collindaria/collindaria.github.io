@@ -320,6 +320,8 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	}
 
 	.colored-border{
+        width: 100%;
+        padding: 15px;
         border: 1px solid;
 		border-color: #0060C5;
 	}
