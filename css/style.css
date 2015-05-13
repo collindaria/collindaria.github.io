@@ -1143,6 +1143,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		background: url(../images/image2.jpg) fixed;
 		padding: 10px 0 10px;
 		background-size: cover;
+        height: 500px;
 	}
 
 	.contact-text{
