@@ -632,7 +632,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	}	
 
 /* About */
-   @media (min-width:400px) and (max-width:600px){
+   @media (min-width:500px) and (max-width:600px){
 	p.lead.lead-text {
 		margin-top: 20px;
 		}
@@ -646,7 +646,6 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	}
 
 	.about-box{
-		text-align: justify;
 		margin:10px auto 0;
 		cursor: pointer;
 	}
