@@ -1091,7 +1091,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 		min-height: 500px;
 		margin:20px auto;
 		background:url(../images/mac.png) center center no-repeat;
-		background-size:50%;
+		background-size:cover;
 	}
 
 	#fun-acts .fun-acts .facts .fact{
@@ -1101,7 +1101,7 @@ License URI:http://www.gnu.org/licenses/gpl-2.0.html
 	
 	#fun-acts{
 		background:#000 url(../images/bgd/image3.jpg) center center no-repeat;
-        background-size:100%;
+        background-size:cover;
 	}
 
 
